@@ -21,7 +21,7 @@ We have also added in an explicit connection from POS to Chunk, which actually m
 * This is python3, so please install anaconda3 and tensorflow. This should be enough to get you started.
 * Then, go into the data folder and get rid of the ``.tmp`` endings on the data.
 * Then run ``$ sh run_all.sh`` - this will start the joint training. Once it's finished, the outputs will be stored in ``./data/outputs``
-* You can then print out the evaluations by typing ``python generate_results.py --path "./data/outputs/predictions/"``
+* You can then print out the evaluations by typing ``python generate_results.py --path "./data/outputs/predictions"``
 
 ## How to do single training
 
@@ -31,7 +31,7 @@ If you want to train each task separately and compare the results you just need 
 ```bash
 python3 run_model.py --model_type "POS" \
        	             --dataset_path "./data" \
-		                 --save_path "./data/outputs/"
+		                 --save_path "./data/outputs"
 
 ```
 
@@ -39,7 +39,7 @@ python3 run_model.py --model_type "POS" \
 ```bash
 python3 run_model.py --model_type "CHUNK" \
        	             --dataset_path "./data" \
-		                 --save_path "./data/outputs/"
+		                 --save_path "./data/outputs"
 
 ```
 
@@ -47,6 +47,6 @@ python3 run_model.py --model_type "CHUNK" \
 ```bash
 python3 run_model.py --model_type "JOINT" \
        	             --dataset_path "./data" \
-		                 --save_path "./data/outputs/"
+		                 --save_path "./data/outputs"
 
 ```
