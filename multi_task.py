@@ -51,15 +51,15 @@ def read_tokens(filename, padding_val, col_val=-1):
             # print(mIn)
             words = np.transpose(np.asarray([x for x in r if (x != [] and len(x)==4) ]  )).astype(object)
 
-    print(words)
+    #print(words)
     # padding token '0'
     print('reading ' + str(col_val) + ' ' + filename)
     if col_val!=-1:
         words = words[col_val]
         #np.pad, pads the words with padwidth(front padding_val, end no pad)
-    print(words)
+    #print(words)
     return np.pad(
-        words, pad_width=(padding_val, 0), mode='constant', constant_values='0')
+        words, pad_width=(padding_val, 0), mode='constant', constant_values=0)
 
 #Basically takes in the text file, with the req. padding width and col value, o is words, 1 is POS and 2 is Tags
 def _build_vocab(filename, padding_width, col_val):
@@ -163,32 +163,37 @@ def raw_x_y_data(data_path, num_steps):
 
     chunk_to_id = _build_tags(comb_path, num_steps-1, 2)
     #all the datas from
-    #ner_to_id =  _build_tags(comb_path, num_steps-1, 3)
+    ner_to_id =  _build_tags(comb_path, num_steps-1, 3)
 
     word_data_t = _file_to_word_ids(train_path, word_to_id, num_steps-1)
     pos_data_t = _file_to_tag_classifications(train_path, pos_to_id, num_steps-1, 1)
     chunk_data_t = _file_to_tag_classifications(train_path, chunk_to_id, num_steps-1, 2)
+    ner_data_t = _file_to_tag_classifications(train_path, ner_to_id, num_steps-1, 3)
+
 
     word_data_v = _file_to_word_ids(valid_path, word_to_id, num_steps-1)
     pos_data_v = _file_to_tag_classifications(valid_path, pos_to_id, num_steps-1, 1)
     chunk_data_v = _file_to_tag_classifications(valid_path, chunk_to_id, num_steps-1, 2)
+    ner_data_v = _file_to_tag_classifications(valid_path, ner_to_id, num_steps-1, 3)
 
     word_data_c = _file_to_word_ids(train_valid_path, word_to_id, num_steps-1)
     pos_data_c = _file_to_tag_classifications(train_valid_path, pos_to_id, num_steps-1, 1)
     chunk_data_c = _file_to_tag_classifications(train_valid_path, chunk_to_id, num_steps-1, 2)
+    ner_data_c = _file_to_tag_classifications(train_valid_path, ner_to_id, num_steps-1, 3)
 
     word_data_test = _file_to_word_ids(test_path, word_to_id, num_steps-1)
     pos_data_test = _file_to_tag_classifications(test_path, pos_to_id, num_steps-1, 1)
     chunk_data_test = _file_to_tag_classifications(test_path, chunk_to_id, num_steps-1, 2)
+    ner_data_test = _file_to_tag_classifications(test_path, ner_to_id, num_steps-1, 3)
 
-    return word_data_t, pos_data_t, chunk_data_t, word_data_v, \
-        pos_data_v, chunk_data_v, word_to_id, pos_to_id, chunk_to_id, \
-        word_data_test, pos_data_test, chunk_data_test, word_data_c, \
-        pos_data_c, chunk_data_c
+    return word_data_t, pos_data_t, chunk_data_t,ner_data_t, word_data_v, \
+        pos_data_v, chunk_data_v, ner_data_v, word_to_id, pos_to_id, chunk_to_id, ner_to_id, \
+        word_data_test, pos_data_test, chunk_data_test, ner_data_test, word_data_c, \
+        pos_data_c, chunk_data_c, ner_data_c
 
 
-def create_batches(raw_words, raw_pos, raw_chunk, batch_size, num_steps, pos_vocab_size,
-                   chunk_vocab_size):
+def create_batches(raw_words, raw_pos, raw_chunk, raw_ner, batch_size, num_steps, pos_vocab_size,
+                   chunk_vocab_size, ner_vocab_size):
     """Tokenize and create batches From words (inputs), raw_pos (output 1), raw_chunk(output 2). The parameters
     of the minibatch are defined by the batch_size, the length of the sequence.
 
@@ -265,7 +270,7 @@ def res_to_list(res, batch_size, num_steps, to_id, w_length):
 ##########################################Run Epoch######################################################
 #########################################################################################################
 
-def run_epoch(session, m, words, pos, chunk, pos_vocab_size, chunk_vocab_size,
+def run_epoch(session, m, words, pos, chunk ,ner, pos_vocab_size, chunk_vocab_size, ner_vocab_size,
               verbose=False, valid=False, model_type='JOINT'):
     """Runs the model on the given data."""
     epoch_size = ((len(words) // m.batch_size) - 1) // m.num_steps
@@ -273,15 +278,19 @@ def run_epoch(session, m, words, pos, chunk, pos_vocab_size, chunk_vocab_size,
     comb_loss = 0.0
     pos_total_loss = 0.0
     chunk_total_loss = 0.0
+    ner_total_loss = 0.0
     iters = 0
     accuracy = 0.0
     pos_predictions = []
     pos_true = []
     chunk_predictions = []
     chunk_true = []
+    ner_predictions = []
+    ner_true = []
 
-    for step, (x, y_pos, y_chunk) in enumerate(create_batches(words, pos, chunk, m.batch_size,
-                                                                     m.num_steps, pos_vocab_size, chunk_vocab_size)):
+    for step, (x, y_pos, y_chunk, y_ner) in enumerate(create_batches(words, pos, chunk, ner, m.batch_size,
+                                                                     m.num_steps, pos_vocab_size, chunk_vocab_size,
+                                                                     ner_vocab_size)):
 
         if model_type == 'POS':
             if valid:
@@ -293,23 +302,30 @@ def run_epoch(session, m, words, pos, chunk, pos_vocab_size, chunk_vocab_size,
                 eval_op = tf.no_op()
             else:
                 eval_op = m.chunk_op
+        elif model_type == 'NER':
+            if valid:
+                eval_op = tf.no_op()
+            else:
+                eval_op = m.ner_op
         else:
             if valid:
                 eval_op = tf.no_op()
             else:
                 eval_op = m.joint_op
 
-        joint_loss, _, pos_int_pred, chunk_int_pred, pos_int_true, \
-        chunk_int_true, pos_loss, chunk_loss = \
+        joint_loss, _, pos_int_pred, chunk_int_pred, ner_int_pred, pos_int_true, \
+        chunk_int_true, ner_int_true, pos_loss, chunk_loss, ner_loss = \
             session.run([m.joint_loss, eval_op, m.pos_int_pred,
-                         m.chunk_int_pred, m.pos_int_targ, m.chunk_int_targ,
-                         m.pos_loss, m.chunk_loss],
+                         m.chunk_int_pred, m.ner_int_pred, m.pos_int_targ, m.chunk_int_targ, m.ner_int_targ,
+                         m.pos_loss, m.chunk_loss, m.ner_loss],
                         {m.input_data: x,
                          m.pos_targets: y_pos,
-                         m.chunk_targets: y_chunk})
+                         m.chunk_targets: y_chunk,
+                         m.ner_targets: y_ner})
         comb_loss += joint_loss
         chunk_total_loss += chunk_loss
         pos_total_loss += pos_loss
+        ner_total_loss += ner_loss
         iters += 1
         if verbose and step % 5 == 0:
             if model_type == 'POS':
@@ -318,6 +334,9 @@ def run_epoch(session, m, words, pos, chunk, pos_vocab_size, chunk_vocab_size,
             elif model_type == 'CHUNK':
                 costs = chunk_total_loss
                 cost = chunk_loss
+            elif model_type == 'NER':
+                costs = ner_total_loss
+                cost = ner_loss
             else:
                 costs = comb_loss
                 cost = joint_loss
@@ -331,8 +350,12 @@ def run_epoch(session, m, words, pos, chunk, pos_vocab_size, chunk_vocab_size,
         chunk_predictions.append(chunk_int_pred)
         chunk_true.append(chunk_int_true)
 
-    return (comb_loss / iters), pos_predictions, chunk_predictions, pos_true, \
-           chunk_true, (pos_total_loss / iters), (chunk_total_loss / iters)
+        ner_int_pred = np.reshape(ner_int_pred, [m.batch_size, m.num_steps])
+        ner_predictions.append(ner_int_pred)
+        ner_true.append(ner_int_true)
+
+    return (comb_loss / iters), pos_predictions, chunk_predictions, ner_predictions, pos_true, \
+           chunk_true, ner_true, (pos_total_loss / iters), (chunk_total_loss / iters), (ner_total_loss / iters)
 
 
 
@@ -347,7 +370,7 @@ def run_epoch(session, m, words, pos, chunk, pos_vocab_size, chunk_vocab_size,
 
 
 class Shared_Model(object):
-    """Tensorflow Graph For Shared Pos & Chunk Model"""
+    """Tensorflow Graph For Shared Pos & Chunk and NER Model"""
 
     def __init__(self, config, is_training):
         self.max_grad_norm = config.max_grad_norm
@@ -355,10 +378,12 @@ class Shared_Model(object):
         self.encoder_size = config.encoder_size
         self.pos_decoder_size = config.pos_decoder_size
         self.chunk_decoder_size = config.chunk_decoder_size
+        self.ner_decoder_size = config.ner_decoder_size
         self.batch_size = config.batch_size
         self.vocab_size = config.vocab_size
         self.num_pos_tags = config.num_pos_tags
         self.num_chunk_tags = config.num_chunk_tags
+        self.num_ner_tags = config.num_ner_tags
         self.input_data = tf.placeholder(tf.int32, [config.batch_size, num_steps])
         self.word_embedding_size = config.word_embedding_size
         self.pos_embedding_size = config.pos_embedding_size
@@ -370,6 +395,8 @@ class Shared_Model(object):
                                                        self.num_pos_tags])
         self.chunk_targets = tf.placeholder(tf.float32, [(self.batch_size * num_steps),
                                                          self.num_chunk_tags])
+        self.ner_targets = tf.placeholder(tf.float32, [(self.batch_size * num_steps),
+                                                         self.num_ner_tags])
 
         self._build_graph(config, is_training)
 
@@ -473,8 +500,50 @@ class Shared_Model(object):
 
         return logits, decoder_states
 
+    def _ner_private(self, encoder_units, pos_prediction, config, is_training):
+        """Decode model for chunks
+
+        Args:
+            encoder_units - these are the encoder units:
+            [batch_size X encoder_size] with the one the pos prediction
+            pos_prediction:
+            must be the same size as the encoder_size
+
+        returns:
+            logits
+        """
+        # concatenate the encoder_units and the pos_prediction
+
+        pos_prediction = tf.reshape(pos_prediction,
+                                    [self.batch_size, self.num_steps, self.pos_embedding_size])
+        encoder_units = tf.transpose(encoder_units, [1, 0, 2])
+        ner_inputs = tf.concat([pos_prediction, encoder_units], 2)
+
+        with tf.variable_scope("ner_decoder"):
+            cell = rnn.BasicLSTMCell(config.ner_decoder_size, forget_bias=1.0, reuse=tf.get_variable_scope().reuse)
+
+            if is_training and config.keep_prob < 1:
+                cell = rnn.DropoutWrapper(
+                    cell, output_keep_prob=config.keep_prob)
+
+            decoder_outputs, decoder_states = tf.nn.dynamic_rnn(cell,
+                                                                ner_inputs,
+                                                                dtype=tf.float32,
+                                                                scope="ner_rnn")
+
+            output = tf.reshape(tf.concat(decoder_outputs, 1),
+                                [-1, config.ner_decoder_size])
+
+            softmax_w = tf.get_variable("softmax_w",
+                                        [config.ner_decoder_size,
+                                         config.num_ner_tags])
+            softmax_b = tf.get_variable("softmax_b", [config.num_ner_tags])
+            logits = tf.matmul(output, softmax_w) + softmax_b
+
+        return logits, decoder_states
+
     def _loss(self, logits, labels):
-        """Calculate loss for both pos and chunk
+        """Calculate loss for all three pos, chunk and ner
             Args:
                 logits from the decoder
                 labels - one-hot
@@ -547,7 +616,19 @@ class Shared_Model(object):
 
         self.chunk_int_pred = chunk_int_pred
         self.chunk_int_targ = chunk_int_targ
-        self.joint_loss = chunk_loss + pos_loss
+
+        if config.argmax == 2:
+            pos_to_ner_embed = tf.nn.embedding_lookup(pos_embedding, pos_int_pred)
+        else:
+            pos_to_ner_embed = tf.matmul(tf.nn.softmax(pos_logits), pos_embedding)
+
+        ner_logits, ner_states = self._ner_private(encoding, pos_to_ner_embed, config, is_training)
+        ner_loss, ner_accuracy, ner_int_pred, ner_int_targ = self._loss(ner_logits, self.ner_targets)
+        self.ner_loss = ner_loss
+
+        self.ner_int_pred = ner_int_pred
+        self.ner_int_targ = ner_int_targ
+        self.joint_loss = chunk_loss + pos_loss + ner_loss
 
         # return pos embedding
         self.pos_embedding = pos_embedding
@@ -557,7 +638,8 @@ class Shared_Model(object):
 
         self.pos_op = self._training(pos_loss, config)
         self.chunk_op = self._training(chunk_loss, config)
-        self.joint_op = self._training(chunk_loss + pos_loss, config)
+        self.ner_op = self._training(ner_loss, config)
+        self.joint_op = self._training(chunk_loss + pos_loss + ner_loss, config)
 
 
 
@@ -581,13 +663,16 @@ class Config(object):
     encoder_size = 200  # first layer
     pos_decoder_size = 200  # second layer
     chunk_decoder_size = 200  # second layer
+    ner_decoder_size = 200  # second layer
     max_epoch = 1  # maximum number of epochs
     keep_prob = 0.5  # for dropout
     batch_size = 64  # number of sequence
     vocab_size = 20000  # this isn't used - need to look at this
     num_pos_tags = 45  # hard coded, should it be?
     num_chunk_tags = 23  # as above
+    num_ner_tags = 23  # as above
     pos_embedding_size = 400
+    ner_embedding_size = 400
     num_shared_layers = 2
     argmax = 0
 
@@ -597,13 +682,14 @@ def main(model_type, dataset_path, save_path):
     config = Config()
     raw_data = raw_x_y_data(
         dataset_path, config.num_steps)
-    words_t, pos_t, chunk_t, words_v, \
-    pos_v, chunk_v, word_to_id, pos_to_id, \
-    chunk_to_id, words_test, pos_test, chunk_test, \
-    words_c, pos_c, chunk_c = raw_data
+    words_t, pos_t, chunk_t, ner_t, words_v, \
+    pos_v, chunk_v, ner_v, word_to_id, pos_to_id, \
+    chunk_to_id, ner_to_id, words_test, pos_test, chunk_test, ner_test, \
+    words_c, pos_c, chunk_c, ner_c = raw_data
 
     config.num_pos_tags = len(pos_to_id)
     config.num_chunk_tags = len(chunk_to_id)
+    config.num_ner_tags = len(ner_to_id)
 
     with tf.Graph().as_default(), tf.Session() as session:
         initializer = tf.random_uniform_initializer(-config.init_scale,
@@ -635,9 +721,11 @@ def main(model_type, dataset_path, save_path):
         train_loss_stats = np.array([])
         train_pos_loss_stats = np.array([])
         train_chunk_loss_stats = np.array([])
+        train_ner_loss_stats = np.array([])
         # Create empty vectors for accuracy
         train_pos_stats = np.array([])
         train_chunk_stats = np.array([])
+        train_ner_stats = np.array([])
 
         # ====================================
         # Create vectors for validation results
@@ -646,54 +734,66 @@ def main(model_type, dataset_path, save_path):
         valid_loss_stats = np.array([])
         valid_pos_loss_stats = np.array([])
         valid_chunk_loss_stats = np.array([])
+        valid_ner_loss_stats = np.array([])
         # Create empty vectors for accuracy
         valid_pos_stats = np.array([])
         valid_chunk_stats = np.array([])
+        valid_ner_stats = np.array([])
+
 
         for i in range(config.max_epoch):
             print("Epoch: %d" % (i + 1))
-            mean_loss, posp_t, chunkp_t, post_t, chunkt_t, pos_loss, chunk_loss = \
+            mean_loss, posp_t, chunkp_t, nerp_t, post_t, chunkt_t, nert_t, pos_loss, chunk_loss, ner_loss = \
                 run_epoch(session, m,
-                          words_t, pos_t, chunk_t,
-                          config.num_pos_tags, config.num_chunk_tags,
+                          words_t, pos_t, chunk_t, ner_t,
+                          config.num_pos_tags, config.num_chunk_tags, config.num_ner_tags,
                           verbose=True, model_type=model_type)
 
             # Save stats for charts
             train_loss_stats = np.append(train_loss_stats, mean_loss)
             train_pos_loss_stats = np.append(train_pos_loss_stats, pos_loss)
             train_chunk_loss_stats = np.append(train_chunk_loss_stats, chunk_loss)
+            train_ner_loss_stats = np.append(train_ner_loss_stats, ner_loss)
 
             # get predictions as list
             posp_t = res_to_list(posp_t, config.batch_size, config.num_steps,
                                         pos_to_id, len(words_t))
             chunkp_t = res_to_list(chunkp_t, config.batch_size,
                                           config.num_steps, chunk_to_id, len(words_t))
+            nerp_t = res_to_list(nerp_t, config.batch_size,
+                                          config.num_steps, ner_to_id, len(words_t))
             post_t = res_to_list(post_t, config.batch_size, config.num_steps,
                                         pos_to_id, len(words_t))
             chunkt_t = res_to_list(chunkt_t, config.batch_size,
                                           config.num_steps, chunk_to_id, len(words_t))
+            nert_t = res_to_list(nert_t, config.batch_size,
+                                          config.num_steps, ner_to_id, len(words_t))
 
             # find the accuracy
             pos_acc = np.sum(posp_t == post_t) / float(len(posp_t))
             chunk_acc = np.sum(chunkp_t == chunkt_t) / float(len(chunkp_t))
+            ner_acc = np.sum(nerp_t == nert_t) / float(len(nerp_t))
 
             # add to array
             train_pos_stats = np.append(train_pos_stats, pos_acc)
             train_chunk_stats = np.append(train_chunk_stats, chunk_acc)
+            train_ner_stats = np.append(train_ner_stats, ner_acc)
 
             # print for tracking
             print("Pos Training Accuracy After Epoch %d :  %3f" % (i + 1, pos_acc))
             print("Chunk Training Accuracy After Epoch %d : %3f" % (i + 1, chunk_acc))
+            print("Ner Training Accuracy After Epoch %d : %3f" % (i + 1, ner_acc))
 
-            valid_loss, posp_v, chunkp_v, post_v, chunkt_v, pos_v_loss, chunk_v_loss = \
-                run_epoch(session, mvalid, words_v, pos_v, chunk_v,
-                          config.num_pos_tags, config.num_chunk_tags,
+            valid_loss, posp_v, chunkp_v, nerp_v, post_v, chunkt_v, nert_v, pos_v_loss, chunk_v_loss, ner_v_loss = \
+                run_epoch(session, mvalid, words_v, pos_v, chunk_v, ner_v,
+                          config.num_pos_tags, config.num_chunk_tags, config.num_ner_tags,
                           verbose=True, valid=True, model_type=model_type)
 
             # Save loss for charts
             valid_loss_stats = np.append(valid_loss_stats, valid_loss)
             valid_pos_loss_stats = np.append(valid_pos_loss_stats, pos_v_loss)
             valid_chunk_loss_stats = np.append(valid_chunk_loss_stats, chunk_v_loss)
+            valid_ner_loss_stats = np.append(valid_ner_loss_stats, ner_v_loss)
 
             # get predictions as list
 
@@ -701,21 +801,28 @@ def main(model_type, dataset_path, save_path):
                                         pos_to_id, len(words_v))
             chunkp_v = res_to_list(chunkp_v, config.batch_size,
                                           config.num_steps, chunk_to_id, len(words_v))
+            nerp_v = res_to_list(nerp_v, config.batch_size,
+                                          config.num_steps, ner_to_id, len(words_v))
             chunkt_v = res_to_list(chunkt_v, config.batch_size,
                                           config.num_steps, chunk_to_id, len(words_v))
+            nert_v = res_to_list(nert_v, config.batch_size,
+                                          config.num_steps, ner_to_id, len(words_v))
             post_v = res_to_list(post_v, config.batch_size, config.num_steps,
                                         pos_to_id, len(words_v))
 
             # find accuracy
             pos_acc = np.sum(posp_v == post_v) / float(len(posp_v))
             chunk_acc = np.sum(chunkp_v == chunkt_v) / float(len(chunkp_v))
+            ner_acc = np.sum(nerp_v == nert_v) / float(len(nerp_v))
 
             print("Pos Validation Accuracy After Epoch %d :  %3f" % (i + 1, pos_acc))
             print("Chunk Validation Accuracy After Epoch %d : %3f" % (i + 1, chunk_acc))
+            print("Chunk Validation Accuracy After Epoch %d : %3f" % (i + 1, ner_acc))
 
             # add to stats
             valid_pos_stats = np.append(valid_pos_stats, pos_acc)
             valid_chunk_stats = np.append(valid_chunk_stats, chunk_acc)
+            valid_ner_stats = np.append(valid_ner_stats, ner_acc)
 
             # update best parameters
             if (valid_loss < best_epoch[1]):
@@ -725,30 +832,34 @@ def main(model_type, dataset_path, save_path):
         np.savetxt(save_path + '/loss/valid_loss_stats.txt', valid_loss_stats)
         np.savetxt(save_path + '/loss/valid_pos_loss_stats.txt', valid_pos_loss_stats)
         np.savetxt(save_path + '/loss/valid_chunk_loss_stats.txt', valid_chunk_loss_stats)
+        np.savetxt(save_path + '/loss/valid_ner_loss_stats.txt', valid_ner_loss_stats)
         np.savetxt(save_path + '/accuracy/valid_pos_stats.txt', valid_pos_stats)
         np.savetxt(save_path + '/accuracy/valid_chunk_stats.txt', valid_chunk_stats)
+        np.savetxt(save_path + '/accuracy/valid_ner_stats.txt', valid_ner_stats)
 
         np.savetxt(save_path + '/loss/train_loss_stats.txt', train_loss_stats)
         np.savetxt(save_path + '/loss/train_pos_loss_stats.txt', train_pos_loss_stats)
         np.savetxt(save_path + '/loss/train_chunk_loss_stats.txt', train_chunk_loss_stats)
+        np.savetxt(save_path + '/loss/train_ner_loss_stats.txt', train_ner_loss_stats)
         np.savetxt(save_path + '/accuracy/train_pos_stats.txt', train_pos_stats)
         np.savetxt(save_path + '/accuracy/train_chunk_stats.txt', train_chunk_stats)
+        np.savetxt(save_path + '/accuracy/train_ner_stats.txt', train_ner_stats)
 
         # Train given epoch parameter
         print('Train Given Best Epoch Parameter :' + str(best_epoch[0]))
         for i in range(best_epoch[0]):
             print("Epoch: %d" % (i + 1))
-            _, posp_c, chunkp_c, _, _, _, _ = \
+            _, posp_c, chunkp_c, nerp_c, _, _, _, _ = \
                 run_epoch(session, mTrain,
-                          words_c, pos_c, chunk_c,
-                          config.num_pos_tags, config.num_chunk_tags,
+                          words_c, pos_c, chunk_c, ner_c,
+                          config.num_pos_tags, config.num_chunk_tags, config.num_ner_tags,
                           verbose=True, model_type=model_type)
 
         print('Getting Testing Predictions')
-        _, posp_test, chunkp_test, _, _, _, _ = \
+        _, posp_test, chunkp_test, nerp_test, _, _, _, _ = \
             run_epoch(session, mTest,
-                      words_test, pos_test, chunk_test,
-                      config.num_pos_tags, config.num_chunk_tags,
+                      words_test, pos_test, chunk_test, ner_test,
+                      config.num_pos_tags, config.num_chunk_tags, config.num_ner_tags,
                       verbose=True, valid=True, model_type=model_type)
 
         print('Writing Predictions')
@@ -761,6 +872,10 @@ def main(model_type, dataset_path, save_path):
                                       config.num_steps, chunk_to_id, len(words_c))
         chunkp_test = res_to_list(chunkp_test, config.batch_size, config.num_steps,
                                          chunk_to_id, len(words_test))
+        nerp_c = res_to_list(nerp_c, config.batch_size,
+                                      config.num_steps, ner_to_id, len(words_c))
+        nerp_test = res_to_list(nerp_test, config.batch_size, config.num_steps,
+                                         ner_to_id, len(words_test))
 
         # save pickle - save_path + '/saved_variables.pkl'
         print('saving variables (pickling)')
@@ -777,6 +892,12 @@ def main(model_type, dataset_path, save_path):
         chunk_pred_val = np.concatenate((np.transpose(valid_custom), chunkp_v), axis=1)
         chunk_pred_c = np.concatenate((np.transpose(combined), chunkp_c), axis=1)
         chunk_pred_test = np.concatenate((np.transpose(test_data), chunkp_test), axis=1)
+
+        ner_pred_train = np.concatenate((np.transpose(train_custom), nerp_t), axis=1)
+        ner_pred_val = np.concatenate((np.transpose(valid_custom), nerp_v), axis=1)
+        ner_pred_c = np.concatenate((np.transpose(combined), nerp_c), axis=1)
+        ner_pred_test = np.concatenate((np.transpose(test_data), nerp_test), axis=1)
+
         pos_pred_train = np.concatenate((np.transpose(train_custom), posp_t), axis=1)
         pos_pred_val = np.concatenate((np.transpose(valid_custom), posp_v), axis=1)
         pos_pred_c = np.concatenate((np.transpose(combined), posp_c), axis=1)
@@ -795,6 +916,19 @@ def main(model_type, dataset_path, save_path):
         print('writing to ' + save_path + '/predictions/chunk_pred_val.txt')
         np.savetxt(save_path + '/predictions/chunk_pred_test.txt',
                    chunk_pred_test, fmt='%s')
+
+        np.savetxt(save_path + '/predictions/ner_pred_train.txt',
+                   ner_pred_train, fmt='%s')
+        print('writing to ' + save_path + '/predictions/ner_pred_train.txt')
+        np.savetxt(save_path + '/predictions/ner_pred_val.txt',
+                   ner_pred_val, fmt='%s')
+        print('writing to ' + save_path + '/predictions/ner_pred_val.txt')
+        np.savetxt(save_path + '/predictions/chunk_pred_combined.txt',
+                   ner_pred_c, fmt='%s')
+        print('writing to ' + save_path + '/predictions/ner_pred_val.txt')
+        np.savetxt(save_path + '/predictions/ner_pred_test.txt',
+                   ner_pred_test, fmt='%s')
+
         print('writing to ' + save_path + '/predictions/chunk_pred_val.txt')
         np.savetxt(save_path + '/predictions/pos_pred_train.txt',
                    pos_pred_train, fmt='%s')
@@ -814,7 +948,7 @@ if __name__ == "__main__":
     parser.add_argument("--dataset_path")
     parser.add_argument("--save_path")
     args = parser.parse_args()
-    if (str(args.model_type) != "POS") and (str(args.model_type) != "CHUNK"):
+    if (str(args.model_type) != "POS") and (str(args.model_type) != "CHUNK") and (str(args.model_type) != "NER"):
         args.model_type = 'JOINT'
     print('Model Selected : ' + str(args.model_type))
     main(str(args.model_type), str(args.dataset_path), str(args.save_path))
