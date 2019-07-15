@@ -200,10 +200,12 @@ def create_batches(raw_words, raw_pos, raw_chunk, raw_ner, batch_size, num_steps
     :param raw_words:
     :param raw_pos:
     :param raw_chunk:
+    :param raw_ner:
     :param batch_size:
     :param num_steps:
     :param pos_vocab_size:
     :param chunk_vocab_size:
+    :param ner_vocab_size:
     :return:
     """
 
@@ -224,6 +226,7 @@ def create_batches(raw_words, raw_pos, raw_chunk, raw_ner, batch_size, num_steps
     word_data = _reshape_and_pad(raw_words, batch_size, num_steps)
     pos_data = _reshape_and_pad(raw_pos, batch_size, num_steps)
     chunk_data = _reshape_and_pad(raw_chunk, batch_size, num_steps)
+    ner_data = _reshape_and_pad(raw_ner, batch_size, num_steps)
 
     """
     3. Do the epoch thing and iterate
@@ -241,9 +244,12 @@ def create_batches(raw_words, raw_pos, raw_chunk, raw_ner, batch_size, num_steps
                           pos_vocab_size) for tag in range(batch_size))
         y_chunk = np.vstack(_seq_tag(chunk_data[tag, i*num_steps:(i+1)*num_steps],
                             chunk_vocab_size) for tag in range(batch_size))
+        y_ner = np.vstack(_seq_tag(ner_data[tag, i*num_steps:(i+1)*num_steps],
+                            ner_vocab_size) for tag in range(batch_size))
         y_pos = y_pos.astype(np.int32)
         y_chunk = y_chunk.astype(np.int32)
-        yield (x, y_pos, y_chunk)
+        y_ner = y_ner.astype(np.int32)
+        yield (x, y_pos, y_chunk, y_ner)
 
 
 def _int_to_string(int_pred, d):
