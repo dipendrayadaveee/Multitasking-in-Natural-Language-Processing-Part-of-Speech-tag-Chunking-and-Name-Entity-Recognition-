@@ -35,19 +35,31 @@ def read_tokens(filename, padding_val, col_val=-1):
     # 0 - words
     # 1 - POS
     # 2 - tags
+    # 3 - NER tags
 #opens the filename in 'read and text mode'
     with open(filename, 'rt', encoding='utf8') as csvfile:
             #reads file from csvfile and the words are seperated by space
             r = csv.reader(csvfile, delimiter=' ')
-            words = np.transpose(np.array([x for x in list(r) if x != []])).astype(object)
+            # mAx = 0
+            # mIn= 100
+            # for row in r:
+            #     if (len(row))>mAx:
+            #         mAx=(len(row))
+            #     if (len(row))<mIn and len(row)>0:
+            #         mIn=(len(row))
+            # print(mAx)
+            # print(mIn)
+            words = np.transpose(np.asarray([x for x in r if (x != [] and len(x)==4) ]  )).astype(object)
 
+    print(words)
     # padding token '0'
     print('reading ' + str(col_val) + ' ' + filename)
     if col_val!=-1:
         words = words[col_val]
         #np.pad, pads the words with padwidth(front padding_val, end no pad)
+    print(words)
     return np.pad(
-        words, pad_width=(padding_val, 0), mode='constant', constant_values=0)
+        words, pad_width=(padding_val, 0), mode='constant', constant_values='0')
 
 #Basically takes in the text file, with the req. padding width and col value, o is words, 1 is POS and 2 is Tags
 def _build_vocab(filename, padding_width, col_val):
@@ -151,6 +163,8 @@ def raw_x_y_data(data_path, num_steps):
 
     chunk_to_id = _build_tags(comb_path, num_steps-1, 2)
     #all the datas from
+    #ner_to_id =  _build_tags(comb_path, num_steps-1, 3)
+
     word_data_t = _file_to_word_ids(train_path, word_to_id, num_steps-1)
     pos_data_t = _file_to_tag_classifications(train_path, pos_to_id, num_steps-1, 1)
     chunk_data_t = _file_to_tag_classifications(train_path, chunk_to_id, num_steps-1, 2)
@@ -320,10 +334,18 @@ def run_epoch(session, m, words, pos, chunk, pos_vocab_size, chunk_vocab_size,
     return (comb_loss / iters), pos_predictions, chunk_predictions, pos_true, \
            chunk_true, (pos_total_loss / iters), (chunk_total_loss / iters)
 
+
+
+
+
+
 ####################################################################################################
 ####################################################################################################
 ##############################Graph#################################################################
 ####################################################################################################
+
+
+
 class Shared_Model(object):
     """Tensorflow Graph For Shared Pos & Chunk Model"""
 
@@ -392,7 +414,7 @@ class Shared_Model(object):
                     pos_decoder_cell, output_keep_prob=config.keep_prob)
 
             encoder_units = tf.transpose(encoder_units, [1, 0, 2])
-
+#main layer here
             decoder_outputs, decoder_states = tf.nn.dynamic_rnn(pos_decoder_cell,
                                                                 encoder_units,
                                                                 dtype=tf.float32,
@@ -536,6 +558,9 @@ class Shared_Model(object):
         self.pos_op = self._training(pos_loss, config)
         self.chunk_op = self._training(chunk_loss, config)
         self.joint_op = self._training(chunk_loss + pos_loss, config)
+
+
+
 
 
 
