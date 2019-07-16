@@ -670,7 +670,7 @@ class Config(object):
     pos_decoder_size = 200  # second layer
     chunk_decoder_size = 200  # second layer
     ner_decoder_size = 200  # second layer
-    max_epoch = 10  # maximum number of epochs
+    max_epoch = 40  # maximum number of epochs
     keep_prob = 0.5  # for dropout
     batch_size = 64  # number of sequence
     vocab_size = 20000  # this isn't used - need to look at this
