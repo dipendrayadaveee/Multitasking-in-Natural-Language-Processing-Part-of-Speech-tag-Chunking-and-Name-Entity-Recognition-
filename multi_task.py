@@ -670,13 +670,13 @@ class Config(object):
     pos_decoder_size = 200  # second layer
     chunk_decoder_size = 200  # second layer
     ner_decoder_size = 200  # second layer
-    max_epoch = 1  # maximum number of epochs
+    max_epoch = 10  # maximum number of epochs
     keep_prob = 0.5  # for dropout
     batch_size = 64  # number of sequence
     vocab_size = 20000  # this isn't used - need to look at this
     num_pos_tags = 45  # hard coded, should it be?
     num_chunk_tags = 23  # as above
-    num_ner_tags = 23  # as above
+    num_ner_tags = 8  # as above
     pos_embedding_size = 400
     ner_embedding_size = 400
     num_shared_layers = 2
