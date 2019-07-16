@@ -823,7 +823,7 @@ def main(model_type, dataset_path, save_path):
 
             print("Pos Validation Accuracy After Epoch %d :  %3f" % (i + 1, pos_acc))
             print("Chunk Validation Accuracy After Epoch %d : %3f" % (i + 1, chunk_acc))
-            print("Chunk Validation Accuracy After Epoch %d : %3f" % (i + 1, ner_acc))
+            print("Ner Validation Accuracy After Epoch %d : %3f" % (i + 1, ner_acc))
 
             # add to stats
             valid_pos_stats = np.append(valid_pos_stats, pos_acc)
@@ -855,14 +855,14 @@ def main(model_type, dataset_path, save_path):
         print('Train Given Best Epoch Parameter :' + str(best_epoch[0]))
         for i in range(best_epoch[0]):
             print("Epoch: %d" % (i + 1))
-            _, posp_c, chunkp_c, nerp_c, _, _, _, _ = \
+            _, posp_c, chunkp_c, nerp_c, _, _, _, _, _, _ = \
                 run_epoch(session, mTrain,
                           words_c, pos_c, chunk_c, ner_c,
                           config.num_pos_tags, config.num_chunk_tags, config.num_ner_tags,
                           verbose=True, model_type=model_type)
 
         print('Getting Testing Predictions')
-        _, posp_test, chunkp_test, nerp_test, _, _, _, _ = \
+        _, posp_test, chunkp_test, nerp_test, _, _, _, _, _, _ = \
             run_epoch(session, mTest,
                       words_test, pos_test, chunk_test, ner_test,
                       config.num_pos_tags, config.num_chunk_tags, config.num_ner_tags,
@@ -929,7 +929,7 @@ def main(model_type, dataset_path, save_path):
         np.savetxt(save_path + '/predictions/ner_pred_val.txt',
                    ner_pred_val, fmt='%s')
         print('writing to ' + save_path + '/predictions/ner_pred_val.txt')
-        np.savetxt(save_path + '/predictions/chunk_pred_combined.txt',
+        np.savetxt(save_path + '/predictions/ner_pred_combined.txt',
                    ner_pred_c, fmt='%s')
         print('writing to ' + save_path + '/predictions/ner_pred_val.txt')
         np.savetxt(save_path + '/predictions/ner_pred_test.txt',
@@ -942,6 +942,18 @@ def main(model_type, dataset_path, save_path):
         np.savetxt(save_path + '/predictions/pos_pred_val.txt',
                    pos_pred_val, fmt='%s')
         print('writing to ' + save_path + '/predictions/chunk_pred_val.txt')
+        np.savetxt(save_path + '/predictions/pos_pred_combined.txt',
+                   pos_pred_c, fmt='%s')
+        np.savetxt(save_path + '/predictions/pos_pred_test.txt',
+                   pos_pred_test, fmt='%s')
+
+        print('writing to ' + save_path + '/predictions/ner_pred_val.txt')
+        np.savetxt(save_path + '/predictions/pos_pred_train.txt',
+                   pos_pred_train, fmt='%s')
+        print('writing to ' + save_path + '/predictions/ner_pred_val.txt')
+        np.savetxt(save_path + '/predictions/pos_pred_val.txt',
+                   pos_pred_val, fmt='%s')
+        print('writing to ' + save_path + '/predictions/ner_pred_val.txt')
         np.savetxt(save_path + '/predictions/pos_pred_combined.txt',
                    pos_pred_c, fmt='%s')
         np.savetxt(save_path + '/predictions/pos_pred_test.txt',
