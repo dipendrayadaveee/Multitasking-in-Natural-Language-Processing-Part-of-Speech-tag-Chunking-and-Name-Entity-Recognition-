@@ -2,17 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="2108ecc0-5b70-4d19-96cc-2e3c923d4d1b" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/conll_data/Conll_raw/test_raw_conll.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/conll_data/Conll_raw/train_raw_conll.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/conll_data/Conll_raw/validationraw_conll.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/conll_data/all_combined.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/conll_data/preprocessing_of_conell_raw.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/conll_data/test.txt" beforeDir="false" afterPath="$PROJECT_DIR$/data/test.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/conll_data/train.txt" beforeDir="false" afterPath="$PROJECT_DIR$/data/train.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/conll_data/train_val_combined.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/conll_data/validation.txt" beforeDir="false" afterPath="$PROJECT_DIR$/data/validation.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/outputs/saved_variables.pkl" beforeDir="false" />
+      <change afterPath="$PROJECT_DIR$/data/outputs/output.goes.here.md" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -138,7 +128,28 @@
     </navigator>
     <panes>
       <pane id="Scope" />
-      <pane id="ProjectPane" />
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="multi-task-learning" type="b2602c69:ProjectViewProjectNode" />
+              <item name="multi-task-learning" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="multi-task-learning" type="b2602c69:ProjectViewProjectNode" />
+              <item name="multi-task-learning" type="462c0819:PsiDirectoryNode" />
+              <item name="data" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="multi-task-learning" type="b2602c69:ProjectViewProjectNode" />
+              <item name="multi-task-learning" type="462c0819:PsiDirectoryNode" />
+              <item name="data" type="462c0819:PsiDirectoryNode" />
+              <item name="outputs" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -350,7 +361,14 @@
       <option name="project" value="LOCAL" />
       <updated>1563458380156</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Working version with the necessary codes(unecessary codes removed)">
+      <created>1563459013729</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1563459013729</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -443,7 +461,8 @@
     <MESSAGE value="test file compatible for the training and evaluation" />
     <MESSAGE value="train file compatible for the training and evaluation" />
     <MESSAGE value="Working version of the code with pre-processed data" />
-    <option name="LAST_COMMIT_MESSAGE" value="Working version of the code with pre-processed data" />
+    <MESSAGE value="Working version with the necessary codes(unecessary codes removed)" />
+    <option name="LAST_COMMIT_MESSAGE" value="Working version with the necessary codes(unecessary codes removed)" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -550,13 +569,6 @@
     </expressions>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/data/train.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15">
-          <caret line="1" column="6" selection-start-line="1" selection-start-column="6" selection-end-line="1" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file:///usr/lib/python3/dist-packages/xcffib/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="164">
@@ -756,6 +768,14 @@
           <folding>
             <element signature="e#0#9#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/data/outputs/output.goes.here.md">
+      <provider selected="true" editor-type-id="split-provider[text-editor;markdown-preview-editor]">
+        <state split_layout="SPLIT">
+          <first_editor />
+          <second_editor />
         </state>
       </provider>
     </entry>
