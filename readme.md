@@ -15,11 +15,14 @@ As you can see, you can train either tasks separately (by calling the individual
 
 We have also added in an explicit connection from POS to Chunk and POS to NER which actually makes the network into something similar to a ladder network with an explicit hidden state representation.
 
-## Quick Start (Mac and Linux)
+## Quick Start (Linux)
 
-* This is python3, so please install python3 if you haven't yet and also tensorflow. This should be enough to get you started.
+* You have to install following packages: 
+Python 3
+Numpy
+pandas
+tensorflow(I ran the model on (1.14.0)
 
-* You can then print out the evaluations by typing ``python generate_results.py --path "./data/outputs/predictions/"``
 
 ## How to do single training
 
@@ -59,4 +62,4 @@ python3 run_model.py --model_type "JOINT" \
 ``python generate_results.py --path "./data/outputs/predictions/"``
 
 
-#Note This model has been forked from Jonathan Godwin multi-tasking model which does multi-tasking for Chunking and POS. I have added an extra NER task to the model. I have edited the readme according to the changes which I have brought in.
+Note: This model has been forked from Jonathan Godwin's multi-tasking model which is for Chunking and POS. I have added an extra NER task to the model. I have edited the readme according to the changes which I have brought in.
