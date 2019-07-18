@@ -24,7 +24,7 @@ pandas
 tensorflow(I ran the model on (1.14.0)  
 
 
-## How to do single training
+## Training
 
 ### POS Single
 ```bash
@@ -33,7 +33,6 @@ python3 multi_task.py --model_type "POS" \
 		                 --save_path "./data/outputs"
 
 ```
-
 ### Chunk Single
 ```bash
 python3 multi_task.py --model_type "CHUNK" \
