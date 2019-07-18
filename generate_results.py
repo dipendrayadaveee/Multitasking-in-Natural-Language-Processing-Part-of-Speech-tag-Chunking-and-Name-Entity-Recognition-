@@ -3,6 +3,7 @@ import argparse
 import pandas as pd
 import numpy as np
 
+
 def generate_results(path):
 
     # def = ../../data/current_outcome
