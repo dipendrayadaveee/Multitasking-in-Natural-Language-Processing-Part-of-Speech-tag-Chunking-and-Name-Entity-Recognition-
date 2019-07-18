@@ -1,8 +1,7 @@
 import os
-from pos_eval import pos_eval
-
 import argparse
-
+import pandas as pd
+import numpy as np
 
 def generate_results(path):
 
@@ -23,7 +22,7 @@ def generate_results(path):
     pos_comb = path + 'pos_pred_combined.txt'
     pos_test = path + 'pos_pred_test.txt'
 
-#for chunk results
+# #for chunk results
     print('generating latex tables - chunk train')
     cmd = 'perl eval.pl -l < ' + chunk_train
     os.system(cmd)
@@ -57,7 +56,33 @@ def generate_results(path):
     cmd = 'perl eval.pl -l < ' + ner_test
     os.system(cmd)
 
-#For PoS results
+
+
+####### testing for POS tags using the perl code
+    # print('generating latex tables - pos train')
+    # cmd = 'perl eval.pl -l < ' + pos_train
+    # os.system(cmd)
+    #
+    # print('generating latex tables - pos valid')
+    # cmd = 'perl eval.pl -l < ' + pos_val
+    # os.system(cmd)
+    #
+    # print('generating latex tables - pos combined')
+    # cmd = 'perl eval.pl -l < ' + pos_comb
+    # os.system(cmd)
+    #
+    # print('generating latex tables - pos test')
+    # cmd = 'perl eval.pl -l < ' + pos_test
+    # os.system(cmd)
+
+
+    def pos_eval(path):
+        data = pd.read_csv(path, sep=' ', header=None)
+        targ = data[1].as_matrix()
+        pred = data[2].as_matrix()
+        return np.sum(targ == pred) / float(len(targ))
+
+    # #For PoS results
     print('generating accuracy - pos train')
     print(pos_eval(pos_train))
 
