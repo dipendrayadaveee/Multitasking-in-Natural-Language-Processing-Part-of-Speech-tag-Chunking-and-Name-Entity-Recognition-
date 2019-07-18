@@ -17,12 +17,11 @@ We have also added in an explicit connection from POS to Chunk and POS to NER wh
 
 ## Quick Start (Linux)
 
-* You have to install following packages: 
-`
-python3
-numpy
-pandas
-tensorflow(I ran the model on (1.14.0)`
+* You have to install following packages:   
+python3  
+numpy  
+pandas  
+tensorflow(I ran the model on (1.14.0)  
 
 
 ## How to do single training
