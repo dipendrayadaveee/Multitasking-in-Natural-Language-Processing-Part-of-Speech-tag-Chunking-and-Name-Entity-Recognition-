@@ -28,7 +28,7 @@ tensorflow(I ran the model on (1.14.0)
 
 ### POS Single
 ```bash
-python3 run_model.py --model_type "POS" \
+python3 multi_task.py --model_type "POS" \
        	             --dataset_path "./data" \
 		                 --save_path "./data/outputs"
 
@@ -36,20 +36,20 @@ python3 run_model.py --model_type "POS" \
 
 ### Chunk Single
 ```bash
-python3 run_model.py --model_type "CHUNK" \
+python3 multi_task.py --model_type "CHUNK" \
        	             --dataset_path "./data" \
 		                 --save_path "./data/outputs"
 ```
 ### NER Single
 ```bash
-python3 run_model.py --model_type "NER" \
+python3 multi_task.py --model_type "NER" \
        	             --dataset_path "./data" \
 		                 --save_path "./data/outputs"
 ```
 
 ### Joint
 ```bash
-python3 run_model.py --model_type "JOINT" \
+python3 multi_task.py --model_type "JOINT" \
        	             --dataset_path "./data" \
 		                 --save_path "./data/outputs"
 
