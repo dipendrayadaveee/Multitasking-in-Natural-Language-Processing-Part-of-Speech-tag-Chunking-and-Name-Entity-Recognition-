@@ -670,7 +670,7 @@ class Config(object):
     pos_decoder_size = 200  # second layer
     chunk_decoder_size = 200  # second layer
     ner_decoder_size = 200  # second layer
-    max_epoch = 3  # maximum number of epochs
+    max_epoch = 1  # maximum number of epochs
     keep_prob = 0.5  # for dropout
     batch_size = 64  # number of sequence
     vocab_size = 20000  # this isn't used - need to look at this
@@ -908,6 +908,24 @@ def main(model_type, dataset_path, save_path):
         pos_pred_val = np.concatenate((np.transpose(valid_custom), posp_v), axis=1)
         pos_pred_c = np.concatenate((np.transpose(combined), posp_c), axis=1)
         pos_pred_test = np.concatenate((np.transpose(test_data), posp_test), axis=1)
+
+
+######Reformatting the array to make it suitable for eval.pl file
+        ner_pred_train = np.delete(ner_pred_train,[1, 2], 1)
+        ner_pred_val = np.delete(ner_pred_val,[1, 2], 1)
+        ner_pred_c = np.delete(ner_pred_c,[1, 2], 1)
+        ner_pred_test = np.delete(ner_pred_test,[1, 2], 1)
+
+        chunk_pred_train = np.delete(chunk_pred_train,[1, 3], 1)
+        chunk_pred_val = np.delete(chunk_pred_val, [1, 3], 1)
+        chunk_pred_c = np.delete(chunk_pred_c, [1, 3], 1)
+        chunk_pred_test = np.delete(chunk_pred_test, [1, 3], 1)
+
+        pos_pred_train = np.delete(pos_pred_train, [2, 3], 1)
+        pos_pred_val = np.delete(pos_pred_val, [2, 3], 1)
+        pos_pred_c = np.delete(pos_pred_c, [2, 3], 1)
+        pos_pred_test = np.delete(pos_pred_test, [2, 3], 1)
+
 
         print('finished concatenating, about to start saving')
 
