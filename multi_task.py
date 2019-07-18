@@ -8,13 +8,35 @@ from tensorflow.contrib import rnn
 
 import numpy as np
 import argparse
-import saveload
 import collections
 import os
 import pandas as pd
 import csv
 import pickle
 import time
+
+##########################################Save Load#########################################################################################################
+##########################################"""Utility methods for pickling and unpickling models"""###########################################################
+
+def save(save_path, sess):
+    with open(save_path, "wb") as file:
+        variables = tf.trainable_variables()
+        values = sess.run(variables)
+        pickle.dump({var.name: val for var, val in zip(variables, values)}, file)
+
+
+def load_np(save_path):
+    if not os.path.exists(save_path):
+        raise Exception("No saved weights at that location")
+    else:
+        v_dict = pickle.load(open(save_path, "rb"))
+        for key in v_dict.keys():
+            print("Key name: " + key)
+
+    return v_dict
+
+
+
 
 
 ########################################################################################################
@@ -885,7 +907,7 @@ def main(model_type, dataset_path, save_path):
 
         # save pickle - save_path + '/saved_variables.pkl'
         print('saving variables (pickling)')
-        saveload.save(save_path + '/saved_variables.pkl', session)
+        save(save_path + '/saved_variables.pkl', session)
 
         train_custom = read_tokens(dataset_path + '/train.txt', 0)
         valid_custom = read_tokens(dataset_path + '/validation.txt', 0)
