@@ -1,5 +1,4 @@
 ### Multi-Task Learning
-
 -------
 
 ## Introduction
@@ -56,7 +55,8 @@ python3 run_model.py --model_type "JOINT" \
 ```
 
 ## Output:
-```
-* You can then print out the evaluations by typing ``python generate_results.py --path "./data/outputs/predictions/"
+* You can then print out the evaluations by typing:
+``python generate_results.py --path "./data/outputs/predictions/"``
 
-```
+
+#Note This model has been forked from Jonathan Godwin multi-tasking model which does multi-tasking for Chunking and POS. I have added an extra NER task to the model. I have edited the readme according to the changes which I have brought in.
