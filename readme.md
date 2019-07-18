@@ -26,8 +26,6 @@ tensorflow(I ran the model on (1.14.0)
 
 ## How to do single training
 
-If you want to train each task separately and compare the results you just need to change an argument in the ``run_all.sh`` script.
-
 ### POS Single
 ```bash
 python3 run_model.py --model_type "POS" \
