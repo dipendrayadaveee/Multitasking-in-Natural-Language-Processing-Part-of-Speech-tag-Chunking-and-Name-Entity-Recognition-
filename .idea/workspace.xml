@@ -2,18 +2,37 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="2108ecc0-5b70-4d19-96cc-2e3c923d4d1b" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/data/conll_data/pos_pro1.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/conll_data/test.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/conll_data/train.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/data/conll_data/validation.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/graph.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/model_reader.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/multi_task.py" beforeDir="false" afterPath="$PROJECT_DIR$/multi_task.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pos_eval.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/run_all.sh" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/run_epoch.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/run_model.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/saveload.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_originally_with_model/all_combined.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_originally_with_model/test.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_originally_with_model/train.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_originally_with_model/train_val_combined.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/data_originally_with_model/validation.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/outputs/accuracy/train_chunk_stats.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/outputs/accuracy/train_ner_stats.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/outputs/accuracy/train_pos_stats.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/outputs/accuracy/valid_chunk_stats.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/outputs/accuracy/valid_ner_stats.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/outputs/accuracy/valid_pos_stats.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/outputs/loss/train_chunk_loss_stats.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/outputs/loss/train_loss_stats.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/outputs/loss/train_ner_loss_stats.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/outputs/loss/train_pos_loss_stats.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/outputs/loss/valid_chunk_loss_stats.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/outputs/loss/valid_loss_stats.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/outputs/loss/valid_ner_loss_stats.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/outputs/loss/valid_pos_loss_stats.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/outputs/predictions/chunk_pred_combined.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/outputs/predictions/chunk_pred_test.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/outputs/predictions/chunk_pred_train.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/outputs/predictions/chunk_pred_val.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/outputs/predictions/ner_pred_combined.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/outputs/predictions/ner_pred_test.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/outputs/predictions/ner_pred_train.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/outputs/predictions/ner_pred_val.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/outputs/predictions/pos_pred_combined.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/outputs/predictions/pos_pred_test.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/outputs/predictions/pos_pred_train.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/outputs/predictions/pos_pred_val.txt" beforeDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -155,7 +174,14 @@
               <item name="multi-task-learning" type="b2602c69:ProjectViewProjectNode" />
               <item name="multi-task-learning" type="462c0819:PsiDirectoryNode" />
               <item name="data" type="462c0819:PsiDirectoryNode" />
-              <item name="conll_data" type="462c0819:PsiDirectoryNode" />
+              <item name="outputs" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="multi-task-learning" type="b2602c69:ProjectViewProjectNode" />
+              <item name="multi-task-learning" type="462c0819:PsiDirectoryNode" />
+              <item name="data" type="462c0819:PsiDirectoryNode" />
+              <item name="outputs" type="462c0819:PsiDirectoryNode" />
+              <item name="accuracy" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
@@ -245,7 +271,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/data/conll_data/pos_pro1.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/data/conll_data/preprocessing_of_conell_raw.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -358,13 +384,20 @@
       <option name="project" value="LOCAL" />
       <updated>1563455530286</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Working version of the code with pre-processed data">
+      <created>1563457995853</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1563457995853</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="-2" width="1920" height="1017" extended-state="6" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.19135477" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.19135477" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -375,7 +408,7 @@
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Version Control" order="7" weight="0.36373875" />
-      <window_info active="true" anchor="bottom" id="Terminal" order="8" sideWeight="0.49973643" visible="true" weight="0.4189189" />
+      <window_info anchor="bottom" id="Terminal" order="8" sideWeight="0.49973643" visible="true" weight="0.4189189" />
       <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.5002636" side_tool="true" weight="0.5675676" />
       <window_info anchor="bottom" id="Python Console" order="10" weight="0.29617116" />
       <window_info anchor="bottom" id="Messages" order="11" />
@@ -450,7 +483,8 @@
     <MESSAGE value="Some basic changes" />
     <MESSAGE value="test file compatible for the training and evaluation" />
     <MESSAGE value="train file compatible for the training and evaluation" />
-    <option name="LAST_COMMIT_MESSAGE" value="train file compatible for the training and evaluation" />
+    <MESSAGE value="Working version of the code with pre-processed data" />
+    <option name="LAST_COMMIT_MESSAGE" value="Working version of the code with pre-processed data" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
