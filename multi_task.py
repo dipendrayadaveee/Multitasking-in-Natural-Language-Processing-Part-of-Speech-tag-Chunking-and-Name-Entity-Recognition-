@@ -72,7 +72,7 @@ def read_tokens(filename, padding_val, col_val=-1):
             # print(mAx)
             # print(mIn)
             words = np.transpose(np.asarray([x for x in r if (x != [] and len(x)==4) ]  )).astype(object)
-
+            nwords = len(words)
     #print(words)
     # padding token '0'
     print('reading ' + str(col_val) + ' ' + filename)
@@ -439,14 +439,18 @@ class Shared_Model(object):
         """
 
         with tf.variable_scope('encoder'):
-            lstm_cell = rnn.BasicLSTMCell(config.encoder_size, reuse=tf.get_variable_scope().reuse, forget_bias=1.0)
+            lstm_cell_fw = tf.compat.v1.nn.rnn_cell.LSTMCell(config.encoder_size, reuse=tf.get_variable_scope().reuse, forget_bias=1.0)
+            lstm_cell_bw = tf.compat.v1.nn.rnn_cell.LSTMCell(config.encoder_size, reuse=tf.get_variable_scope().reuse, forget_bias=1.0)
             if is_training and config.keep_prob < 1:
-                lstm_cell = rnn.DropoutWrapper(
-                    lstm_cell, output_keep_prob=config.keep_prob)
-            encoder_outputs, encoder_states = tf.nn.dynamic_rnn(lstm_cell,
-                                                                input_data,
-                                                                dtype=tf.float32,
-                                                                scope="encoder_rnn")
+                lstm_cell_fw = rnn.DropoutWrapper(
+                    lstm_cell_fw, output_keep_prob=config.keep_prob)
+                lstm_cell_bw = rnn.DropoutWrapper(
+                    lstm_cell_bw, output_keep_prob=config.keep_prob)
+            encoder_outputs, encoder_states = tf.nn.bidirectional_dynamic_rnn(cell_fw=lstm_cell_fw,
+                                                                              cell_bw=lstm_cell_bw,
+                                                                              dtype=tf.float32,
+                                                                              inputs=input_data,
+                                                                              scope="encoder_rnn")
 
         return encoder_outputs
 
@@ -461,20 +465,36 @@ class Shared_Model(object):
             logits
         """
         with tf.variable_scope("pos_decoder"):
-            pos_decoder_cell = rnn.BasicLSTMCell(config.pos_decoder_size,
-                                     forget_bias=1.0, reuse=tf.get_variable_scope().reuse)
+            pos_decoder_cell = tf.compat.v1.nn.rnn_cell.LSTMCell(config.pos_decoder_size,
+                                                 forget_bias=1.0, reuse=tf.get_variable_scope().reuse)
 
             if is_training and config.keep_prob < 1:
                 pos_decoder_cell = rnn.DropoutWrapper(
                     pos_decoder_cell, output_keep_prob=config.keep_prob)
 
             encoder_units = tf.transpose(encoder_units, [1, 0, 2])
-#main layer here
+            # main layer here
             decoder_outputs, decoder_states = tf.nn.dynamic_rnn(pos_decoder_cell,
                                                                 encoder_units,
                                                                 dtype=tf.float32,
                                                                 scope="pos_rnn")
-
+#         with tf.variable_scope("pos_decoder"):
+#             pos_decoder_cell_fw = tf.compat.v1.nn.rnn_cell.LSTMCell(config.pos_decoder_size, forget_bias=1.0, reuse=tf.get_variable_scope().reuse)
+#             pos_decoder_cell_bw = tf.compat.v1.nn.rnn_cell.LSTMCell(config.pos_decoder_size, forget_bias=1.0, reuse=tf.get_variable_scope().reuse)
+#
+#             if is_training and config.keep_prob < 1:
+#                 pos_decoder_cell_fw = rnn.DropoutWrapper(
+#                     pos_decoder_cell_fw, output_keep_prob=config.keep_prob)
+#                 pos_decoder_cell_bw = rnn.DropoutWrapper(
+#                     pos_decoder_cell_bw, output_keep_prob=config.keep_prob)
+#             # [batchSize x TIME x features]
+#             encoder_units = tf.transpose(encoder_units, [1, 0, 2])
+# #main layer here
+#             decoder_outputs, decoder_states = tf.nn.bidirectional_dynamic_rnn(cell_fw=pos_decoder_cell_fw,
+#                                                                               cell_bw=pos_decoder_cell_bw,
+#                                                                               dtype=tf.float32,
+#                                                                               scope="pos_rnn",
+#                                                                               inputs=encoder_units)
             output = tf.reshape(tf.concat(decoder_outputs, 1),
                                 [-1, config.pos_decoder_size])
 
@@ -622,7 +642,11 @@ class Shared_Model(object):
 
         encoding = self._shared_layer(inputs, config, is_training)
 
-        encoding = tf.stack(encoding)
+        # encoding = tf.stack(encoding)
+
+        # [batchSize x TIME x features]
+        encoding = tf.concat(encoding, axis=2)
+        # [TIME x batchSize x features]
         encoding = tf.transpose(encoding, perm=[1, 0, 2])
 
         pos_logits, pos_states = self._pos_private(encoding, config, is_training)
