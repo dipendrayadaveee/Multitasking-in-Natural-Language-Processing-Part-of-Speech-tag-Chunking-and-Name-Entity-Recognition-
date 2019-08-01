@@ -400,25 +400,25 @@ class Shared_Model(object):
         self.max_grad_norm = config.max_grad_norm
         self.num_steps = num_steps = config.num_steps
         self.encoder_size = config.encoder_size
-        self.pos_decoder_size = config.pos_decoder_size
-        self.chunk_decoder_size = config.chunk_decoder_size
+        #self.pos_decoder_size = config.pos_decoder_size
+        #self.chunk_decoder_size = config.chunk_decoder_size
         self.ner_decoder_size = config.ner_decoder_size
         self.batch_size = config.batch_size
         self.vocab_size = config.vocab_size
-        self.num_pos_tags = config.num_pos_tags
-        self.num_chunk_tags = config.num_chunk_tags
+        #self.num_pos_tags = config.num_pos_tags
+        #self.num_chunk_tags = config.num_chunk_tags
         self.num_ner_tags = config.num_ner_tags
         self.input_data = tf.placeholder(tf.int32, [config.batch_size, num_steps])
         self.word_embedding_size = config.word_embedding_size
-        self.pos_embedding_size = config.pos_embedding_size
-        self.num_shared_layers = config.num_shared_layers
+#        self.pos_embedding_size = config.pos_embedding_size
+        #self.num_shared_layers = config.num_shared_layers
         self.argmax = config.argmax
 
         # add input size - size of pos tags
-        self.pos_targets = tf.placeholder(tf.float32, [(self.batch_size * num_steps),
-                                                       self.num_pos_tags])
-        self.chunk_targets = tf.placeholder(tf.float32, [(self.batch_size * num_steps),
-                                                         self.num_chunk_tags])
+        #self.pos_targets = tf.placeholder(tf.float32, [(self.batch_size * num_steps),
+         #                                              self.num_pos_tags])
+        ##self.chunk_targets = tf.placeholder(tf.float32, [(self.batch_size * num_steps),
+        #                                                 self.num_chunk_tags])
         self.ner_targets = tf.placeholder(tf.float32, [(self.batch_size * num_steps),
                                                          self.num_ner_tags])
 
@@ -545,7 +545,7 @@ class Shared_Model(object):
 #         return logits, decoder_states
 
     def _ner_private(self, input_data, config, is_training):
-        """Decode model for chunks
+        """Decode model for ner
 
         Args:
             encoder_units - these are the encoder units:
@@ -632,7 +632,7 @@ class Shared_Model(object):
     def _build_graph(self, config, is_training):
         word_embedding = tf.get_variable("word_embedding", [config.vocab_size, config.word_embedding_size])
         inputs = tf.nn.embedding_lookup(word_embedding, self.input_data)
-        pos_embedding = tf.get_variable("pos_embedding", [config.num_pos_tags, config.pos_embedding_size])
+        # pos_embedding = tf.get_variable("pos_embedding", [config.num_pos_tags, config.pos_embedding_size])
 
         if is_training and config.keep_prob < 1:
             inputs = tf.nn.dropout(inputs, config.keep_prob)
@@ -681,7 +681,7 @@ class Shared_Model(object):
         self.joint_loss =  ner_loss
 
         # return pos embedding
-        self.pos_embedding = pos_embedding
+#        self.pos_embedding = pos_embedding
 
         if not is_training:
             return
@@ -711,19 +711,19 @@ class Config(object):
     num_steps = 20  # length of sequence
     word_embedding_size = 400  # size of the embedding
     encoder_size = 200  # first layer
-    pos_decoder_size = 200  # second layer
-    chunk_decoder_size = 200  # second layer
+    #pos_decoder_size = 200  # second layer
+    #chunk_decoder_size = 200  # second layer
     ner_decoder_size = 200  # second layer
-    max_epoch = 1  # maximum number of epochs
+    max_epoch = 200  # maximum number of epochs
     keep_prob = 0.5  # for dropout
     batch_size = 64  # number of sequence
     vocab_size = 20000  # this isn't used - need to look at this
-    num_pos_tags = 45  # hard coded, should it be?
-    num_chunk_tags = 23  # as above
+    #num_pos_tags = 45  # hard coded, should it be?
+    #num_chunk_tags = 23  # as above
     num_ner_tags = 8  # as above
-    pos_embedding_size = 400
+    #pos_embedding_size = 400
     ner_embedding_size = 400
-    num_shared_layers = 2
+    #num_shared_layers = 2
     argmax = 0
 
 
