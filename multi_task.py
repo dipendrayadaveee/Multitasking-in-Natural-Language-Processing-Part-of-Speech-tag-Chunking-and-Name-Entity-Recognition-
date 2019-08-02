@@ -341,8 +341,8 @@ def run_epoch(session, m, words ,ner, ner_vocab_size,
             else:
                 eval_op = m.joint_op
 
-        ner_int_pred, ner_int_true,  ner_loss = \
-            session.run([m.ner_int_pred,  m.ner_int_targ,
+        _, ner_int_pred, ner_int_true,  ner_loss = \
+            session.run([eval_op, m.ner_int_pred,  m.ner_int_targ,
                           m.ner_loss],
                         {m.input_data: x,
                          m.ner_targets: y_ner})
@@ -411,7 +411,7 @@ class Shared_Model(object):
         self.input_data = tf.placeholder(tf.int32, [config.batch_size, num_steps])
         self.word_embedding_size = config.word_embedding_size
 #        self.pos_embedding_size = config.pos_embedding_size
-        #self.num_shared_layers = config.num_shared_layers
+        self.num_shared_layers = config.num_shared_layers
         self.argmax = config.argmax
 
         # add input size - size of pos tags
@@ -424,32 +424,33 @@ class Shared_Model(object):
 
         self._build_graph(config, is_training)
 
-#      #def _shared_layer(self, input_data, config, is_training):
-#         """Build the model up until decoding.
-#
-#         Args:
-#             input_data = size batch_size X num_steps X embedding size
-#
-#         Returns:
-#             output units
-#         """
-#
-#         with tf.variable_scope('encoder'):
-#             lstm_cell_fw = tf.compat.v1.nn.rnn_cell.LSTMCell(config.encoder_size, reuse=tf.get_variable_scope().reuse, forget_bias=1.0)
-#             lstm_cell_bw = tf.compat.v1.nn.rnn_cell.LSTMCell(config.encoder_size, reuse=tf.get_variable_scope().reuse, forget_bias=1.0)
-#             if is_training and config.keep_prob < 1:
-#                 lstm_cell_fw = rnn.DropoutWrapper(
-#                     lstm_cell_fw, output_keep_prob=config.keep_prob)
-#                 lstm_cell_bw = rnn.DropoutWrapper(
-#                     lstm_cell_bw, output_keep_prob=config.keep_prob)
-#             encoder_outputs, encoder_states = tf.nn.bidirectional_dynamic_rnn(cell_fw=lstm_cell_fw,
-#                                                                               cell_bw=lstm_cell_bw,
-#                                                                               dtype=tf.float32,
-#                                                                               inputs=input_data,
-#                                                                               scope="encoder_rnn")
-#
-#         return encoder_outputs
-#
+    def _shared_layer(self, input_data, config, is_training):
+        """Build the model up until decoding.
+
+        Args:
+            input_data = size batch_size X num_steps X embedding size
+
+        Returns:
+            output units
+        """
+
+        with tf.variable_scope('encoder'):
+            lstm_cell_fw = tf.compat.v1.nn.rnn_cell.LSTMCell(config.encoder_size/2, reuse=tf.get_variable_scope().reuse, forget_bias=1.0)
+            lstm_cell_bw = tf.compat.v1.nn.rnn_cell.LSTMCell(config.encoder_size/2, reuse=tf.get_variable_scope().reuse, forget_bias=1.0)
+            if is_training and config.keep_prob < 1:
+                lstm_cell_fw = rnn.DropoutWrapper(
+                    lstm_cell_fw, output_keep_prob=config.keep_prob)
+                lstm_cell_bw = rnn.DropoutWrapper(
+                    lstm_cell_bw, output_keep_prob=config.keep_prob)
+            encoder_outputs, encoder_states = tf.nn.bidirectional_dynamic_rnn(cell_fw=lstm_cell_fw,
+                                                                              cell_bw=lstm_cell_bw,
+                                                                              dtype=tf.float32,
+                                                                              inputs=input_data,
+                                                                              time_major=False,
+                                                                              scope="encoder_rnn")
+
+        return encoder_outputs
+
 #     def _pos_private(self, encoder_units, config, is_training):
 #         """Decode model for pos
 #
@@ -560,21 +561,40 @@ class Shared_Model(object):
 
         # pos_prediction = tf.reshape(pos_prediction,
         #                             [self.batch_size, self.num_steps, self.pos_embedding_size])
+        print('Hello before encoder',input_data)
         encoder_units = tf.transpose(input_data, [1, 0, 2])
         # ner_inputs = tf.concat([pos_prediction, encoder_units], 2)
-        ner_inputs = encoder_units
+        ner_inputs = input_data
 
         with tf.variable_scope("ner_decoder"):
-            cell = rnn.BasicLSTMCell(config.ner_decoder_size, forget_bias=1.0, reuse=tf.get_variable_scope().reuse)
-
+            # cell = rnn.BasicLSTMCell(config.ner_decoder_size, forget_bias=1.0, reuse=tf.get_variable_scope().reuse)
+            #
+            # if is_training and config.keep_prob < 1:
+            #     cell = rnn.DropoutWrapper(
+            #         cell, output_keep_prob=config.keep_prob)
+            #
+            # decoder_outputs, decoder_states = tf.nn.dynamic_rnn(cell,
+            #                                                     ner_inputs,
+            #                                                     dtype=tf.float32,
+            #                                                     time_major=False,
+            #                                                     scope="ner_rnn")
+            lstm_cell_fw = tf.compat.v1.nn.rnn_cell.LSTMCell(config.ner_decoder_size/2, reuse=tf.get_variable_scope().reuse,
+                                                             forget_bias=1.0)
+            lstm_cell_bw = tf.compat.v1.nn.rnn_cell.LSTMCell(config.ner_decoder_size/2, reuse=tf.get_variable_scope().reuse,
+                                                             forget_bias=1.0)
             if is_training and config.keep_prob < 1:
-                cell = rnn.DropoutWrapper(
-                    cell, output_keep_prob=config.keep_prob)
+                lstm_cell_fw = rnn.DropoutWrapper(
+                    lstm_cell_fw, output_keep_prob=config.keep_prob)
+                lstm_cell_bw = rnn.DropoutWrapper(
+                    lstm_cell_bw, output_keep_prob=config.keep_prob)
+            decoder_outputs, decoder_states = tf.nn.bidirectional_dynamic_rnn(cell_fw=lstm_cell_fw,
+                                                                              cell_bw=lstm_cell_bw,
+                                                                              dtype=tf.float32,
+                                                                              inputs=ner_inputs,
+                                                                              time_major=False,
+                                                                              scope="ner_rnn")
+            decoder_outputs = tf.concat(decoder_outputs, axis=2)
 
-            decoder_outputs, decoder_states = tf.nn.dynamic_rnn(cell,
-                                                                ner_inputs,
-                                                                dtype=tf.float32,
-                                                                scope="ner_rnn")
 
             output = tf.reshape(tf.concat(decoder_outputs, 1),
                                 [-1, config.ner_decoder_size])
@@ -637,12 +657,12 @@ class Shared_Model(object):
         if is_training and config.keep_prob < 1:
             inputs = tf.nn.dropout(inputs, config.keep_prob)
 
-        # #encoding = self._shared_layer(inputs, config, is_training)
+        encoding = self._shared_layer(inputs, config, is_training)
         #
         # # encoding = tf.stack(encoding)
         #
         # # [batchSize x TIME x features]
-        # encoding = tf.concat(encoding, axis=2)
+        encoding = tf.concat(encoding, axis=2)
         # # [TIME x batchSize x features]
         # encoding = tf.transpose(encoding, perm=[1, 0, 2])
         #
@@ -672,7 +692,7 @@ class Shared_Model(object):
         #     pos_to_ner_embed = tf.matmul(tf.nn.softmax(pos_logits), pos_embedding)
 
         #ner_logits, ner_states = self._ner_private(encoding, config, is_training)
-        ner_logits, ner_states = self._ner_private(inputs, config, is_training)
+        ner_logits, ner_states = self._ner_private(encoding, config, is_training)
         ner_loss, ner_accuracy, ner_int_pred, ner_int_targ = self._loss(ner_logits, self.ner_targets)
         self.ner_loss = ner_loss
 
@@ -710,11 +730,11 @@ class Config(object):
     max_grad_norm = 5  # for gradient clipping
     num_steps = 20  # length of sequence
     word_embedding_size = 400  # size of the embedding
-    encoder_size = 200  # first layer
+    encoder_size = 150  # first layer
     #pos_decoder_size = 200  # second layer
     #chunk_decoder_size = 200  # second layer
-    ner_decoder_size = 200  # second layer
-    max_epoch = 200  # maximum number of epochs
+    ner_decoder_size = 150  # second layer
+    max_epoch = 100  # maximum number of epochs
     keep_prob = 0.5  # for dropout
     batch_size = 64  # number of sequence
     vocab_size = 20000  # this isn't used - need to look at this
@@ -723,7 +743,7 @@ class Config(object):
     num_ner_tags = 8  # as above
     #pos_embedding_size = 400
     ner_embedding_size = 400
-    #num_shared_layers = 2
+    num_shared_layers = 2
     argmax = 0
 
 
