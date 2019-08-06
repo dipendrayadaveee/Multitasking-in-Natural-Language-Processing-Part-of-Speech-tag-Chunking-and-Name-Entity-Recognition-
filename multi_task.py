@@ -150,10 +150,10 @@ def _file_to_tag_classifications(filename, tag_to_id, padding_width, col_val):
 
 def raw_x_y_data(data_path, num_steps):
     train = "train.txt"
-    valid = "validation.txt"
+    valid = "test.txt"
     train_valid = "train_val_combined.txt"
     comb = "all_combined.txt"
-    test = "test.txt"
+    test = "validation.txt"
 
     train_path = os.path.join(data_path, train)
     valid_path = os.path.join(data_path, valid)
@@ -172,9 +172,9 @@ def raw_x_y_data(data_path, num_steps):
 
     if not os.path.exists(data_path + '/all_combined.txt'):
         print('writing combined')
-        test_data = pd.read_csv(data_path + '/test.txt', sep= ' ',header=None)
+        test_data = pd.read_csv(data_path + '/validation.txt', sep= ' ',header=None)
         train_data = pd.read_csv(data_path + '/train.txt', sep= ' ',header=None)
-        val_data = pd.read_csv(data_path + '/validation.txt', sep=' ', header=None)
+        val_data = pd.read_csv(data_path + '/test.txt', sep=' ', header=None)
 
         comb = pd.concat([train_data,val_data,test_data])
         comb.to_csv(data_path + '/all_combined.txt', sep=' ', index=False, header=False)
@@ -734,7 +734,7 @@ class Config(object):
     #pos_decoder_size = 200  # second layer
     #chunk_decoder_size = 200  # second layer
     ner_decoder_size = 150  # second layer
-    max_epoch = 100  # maximum number of epochs
+    max_epoch = 1  # maximum number of epochs
     keep_prob = 0.5  # for dropout
     batch_size = 64  # number of sequence
     vocab_size = 20000  # this isn't used - need to look at this
@@ -952,9 +952,9 @@ def main(model_type, dataset_path, save_path):
         save(save_path + '/saved_variables.pkl', session)
 
         train_custom = read_tokens(dataset_path + '/train.txt', 0)
-        valid_custom = read_tokens(dataset_path + '/validation.txt', 0)
+        valid_custom = read_tokens(dataset_path + '/test.txt', 0)
         combined = read_tokens(dataset_path + '/train_val_combined.txt', 0)
-        test_data = read_tokens(dataset_path + '/test.txt', 0)
+        test_data = read_tokens(dataset_path + '/validation.txt', 0)
 
         print('loaded text')
 
@@ -1013,9 +1013,10 @@ def main(model_type, dataset_path, save_path):
         print('writing to ' + save_path + '/predictions/ner_pred_val.txt')
         np.savetxt(save_path + '/predictions/ner_pred_combined.txt',
                    ner_pred_c, fmt='%s')
-        print('writing to ' + save_path + '/predictions/ner_pred_val.txt')
+        print('writing to ' + save_path + '/predictions/ner_pred_combined.txt')
         np.savetxt(save_path + '/predictions/ner_pred_test.txt',
                    ner_pred_test, fmt='%s')
+        print('writing to ' + save_path + '/predictions/ner_pred_test.txt')
 
         # print('writing to ' + save_path + '/predictions/chunk_pred_val.txt')
         # np.savetxt(save_path + '/predictions/pos_pred_train.txt',
